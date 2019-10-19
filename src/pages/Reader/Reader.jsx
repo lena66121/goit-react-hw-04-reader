@@ -17,46 +17,54 @@ export default class Reader extends Component {
   componentDidMount() {
     const { location, history } = this.props;
     const item = getItemFromProps(this.props);
-    if (!item) {
+    const { items } = this.state;
+    if (!item || item > items.length) {
       return history.push({
         pathname: location.pathname,
         search: `item=1`,
       });
     }
+
     return this.setState({
       currentPage: item - 1,
     });
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { location, history } = this.props;
-    const { currentPage } = this.state;
-
-    if (currentPage !== prevState.currentPage) {
-      if (prevState.currentPage < currentPage) {
-        history.push({
-          pathname: location.pathname,
-          search: `item=${currentPage + 1}`,
-        });
-      } else {
-        history.push({
-          pathname: location.pathname,
-          search: `item=${currentPage + 1}`,
-        });
-      }
+    const item = getItemFromProps(this.props);
+    if (item !== getItemFromProps(prevProps)) {
+      this.setState({
+        currentPage: item - 1,
+      });
     }
   }
 
   handleClick = ({ target }) => {
     const { name } = target;
+    const { location, history } = this.props;
+
+    const redirect = () => {
+      return history.push({
+        ...location,
+        search: `item=${this.state.currentPage + 1}`,
+        pathname: '/reader',
+      });
+    };
+
     if (name === 'previous') {
-      this.setState(state => ({
-        currentPage: state.currentPage - 1,
-      }));
+      this.setState(
+        state => ({
+          currentPage: state.currentPage - 1,
+        }),
+        redirect,
+      );
     } else {
-      this.setState(state => ({
-        currentPage: state.currentPage + 1,
-      }));
+      this.setState(
+        state => ({
+          currentPage: state.currentPage + 1,
+        }),
+        redirect,
+      );
     }
   };
 
