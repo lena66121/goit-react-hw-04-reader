@@ -17,8 +17,7 @@ export default class Reader extends Component {
   componentDidMount() {
     const { location, history } = this.props;
     const item = getItemFromProps(this.props);
-    const { items } = this.state;
-    if (!item || item > items.length) {
+    if (!item) {
       return history.push({
         pathname: location.pathname,
         search: `item=1`,
@@ -32,9 +31,16 @@ export default class Reader extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     const item = getItemFromProps(this.props);
-    if (item !== getItemFromProps(prevProps)) {
+    const { items } = this.state;
+    const { location, history } = this.props;
+    if (item !== getItemFromProps(prevProps) && item <= items.length) {
       this.setState({
         currentPage: item - 1,
+      });
+    } else if (item > items.length) {
+      history.push({
+        pathname: location.pathname,
+        search: `item=1`,
       });
     }
   }
